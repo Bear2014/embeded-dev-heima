@@ -1,0 +1,6 @@
+".\Objects\main.obj",
+".\Objects\STC8G_H_GPIO.obj",
+".\Objects\STC8G_H_Delay.obj",
+".\Objects\STC8G_H_Timer.obj" 
+TO ".\Objects\firstLight" 
+PRINT(".\Listings\firstLight.m51") RAMSIZE(256) 

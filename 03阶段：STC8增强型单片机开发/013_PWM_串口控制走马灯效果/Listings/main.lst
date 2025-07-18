@@ -1,0 +1,168 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              04/08/2025 01:41:23 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "STC8h.h"
+   2          #include "lib/Config.h"
+   3          #include "lib/STC8G_H_GPIO.h"
+   4          #include "lib/STC8G_H_Delay.h"
+   5          #include "lib/STC8G_H_NVIC.h"
+   6          #include "lib/STC8G_H_Switch.h"
+   7          #include "lib/STC8H_PWM.h"
+   8          #include "lib/STC8G_H_UART.h"
+   9          
+  10          void GPIO_Config();
+  11          void UART_Config();
+  12          char recv_dat();
+  13          void led_to_left();
+  14          void led_to_right();
+  15          
+  16          
+  17          #define LED_SW P45
+  18          #define LED1 P27
+  19          #define LED2 P26
+  20          #define LED3 P15
+  21          #define LED4 P14
+  22          #define LED5 P23
+  23          #define LED6 P22
+  24          #define LED7 P21
+  25          #define LED8 P20
+  26          
+  27          
+  28          void main() {
+  29   1      //  char direct;
+  30   1      
+  31   1        
+  32   1        //配置GPIO
+  33   1        GPIO_Config();
+  34   1        
+  35   1        //配置uart
+  36   1        UART_Config();
+  37   1        EA = 1;
+  38   1        
+  39   1        LED_SW = 0;
+  40   1        
+  41   1        while(1) {
+  42   2          if(COM1.RX_Cnt > 0) {
+  43   3            RX1_Buffer[0] == 0x00 ? led_to_right() : led_to_left();
+  44   3            COM1.RX_Cnt = 0;
+  45   3          }
+  46   2          
+  47   2          delay_ms(25);
+  48   2        }
+  49   1        
+  50   1      }
+  51          
+  52          void GPIO_Config() {
+  53   1        GPIO_InitTypeDef GPIO_InitTypeDef;
+  54   1      
+C51 COMPILER V9.60.7.0   MAIN                                                              04/08/2025 01:41:23 PAGE 2   
+
+  55   1        GPIO_InitTypeDef.Mode = GPIO_OUT_PP;
+  56   1        GPIO_InitTypeDef.Pin = GPIO_Pin_5;
+  57   1        GPIO_Inilize(GPIO_P4,&GPIO_InitTypeDef);
+  58   1        
+  59   1        GPIO_InitTypeDef.Mode = GPIO_OUT_PP;
+  60   1        GPIO_InitTypeDef.Pin = GPIO_Pin_7 | GPIO_Pin_6;
+  61   1        GPIO_Inilize(GPIO_P2,&GPIO_InitTypeDef);
+  62   1        
+  63   1        GPIO_InitTypeDef.Mode = GPIO_OUT_PP;
+  64   1        GPIO_InitTypeDef.Pin = GPIO_Pin_4 | GPIO_Pin_5;
+  65   1        GPIO_Inilize(GPIO_P1,&GPIO_InitTypeDef);
+  66   1        
+  67   1        GPIO_InitTypeDef.Mode = GPIO_OUT_PP;
+  68   1        GPIO_InitTypeDef.Pin = GPIO_Pin_3 | GPIO_Pin_2 | GPIO_Pin_1 | GPIO_Pin_0;
+  69   1        GPIO_Inilize(GPIO_P2,&GPIO_InitTypeDef);
+  70   1      }
+  71          
+  72          //配置串口
+  73          void UART_config(void)
+  74          {
+  75   1          COMx_InitDefine   COMx_InitStructure;         //结构定义
+  76   1      
+  77   1          COMx_InitStructure.UART_Mode      = UART_8bit_BRTx; //模式, UART_ShiftRight,UART_8bit_BRTx,UART_9bit,U
+             -ART_9bit_BRTx
+  78   1          COMx_InitStructure.UART_BRT_Use   = BRT_Timer1;     //选择波特率发生器, BRT_Timer1, BRT_Timer2 (注意: 串
+             -口2固定使用BRT_Timer2)
+  79   1          COMx_InitStructure.UART_BaudRate  = 115200ul;     //波特率, 一般 110 ~ 115200
+  80   1          COMx_InitStructure.UART_RxEnable  = ENABLE;       //接收允许,   ENABLE或DISABLE
+  81   1          COMx_InitStructure.BaudRateDouble = DISABLE;      //波特率加倍, ENABLE或DISABLE
+  82   1          UART_Configuration(UART1, &COMx_InitStructure);   //初始化串口1 UART1,UART2,UART3,UART4
+  83   1        
+  84   1        
+  85   1          NVIC_UART1_Init(ENABLE,Priority_1);   //中断使能, ENABLE\DISABLE; 优先级(低到高) Priority_0,Priority_1,
+             -Priority_2,Priority_3
+  86   1          
+  87   1          UART1_SW(UART1_SW_P30_P31);   //UART1_SW_P30_P31,UART1_SW_P36_P37,UART1_SW_P16_P17,UART1_SW_P43_P44
+  88   1      }
+  89          
+  90          
+  91          //接收串口数据
+  92          char recv_dat() {
+  93   1          char recv_char;
+  94   1          if(COM1.RX_Cnt > 0) {
+  95   2            recv_char = RX1_Buffer[0];
+  96   2      
+  97   2            //已经把数据处理好了，计数就要归0
+  98   2            COM1.RX_Cnt = 0;
+  99   2            return recv_char;
+ 100   2          }
+ 101   1          
+ 102   1          return 0x00;
+ 103   1      }
+ 104          
+ 105          
+ 106          //led灯从左到右闪灯
+ 107          void led_to_right() {
+ 108   1          u8 i;
+ 109   1          for(i=1;i<9;i++) {
+ 110   2            LED1 = i == 1 ? 0 : 1;
+ 111   2            LED2 = i == 2 ? 0 : 1;
+ 112   2            LED3 = i == 3 ? 0 : 1;
+ 113   2            LED4 = i == 4 ? 0 : 1;
+C51 COMPILER V9.60.7.0   MAIN                                                              04/08/2025 01:41:23 PAGE 3   
+
+ 114   2            LED5 = i == 5 ? 0 : 1;
+ 115   2            LED6 = i == 6 ? 0 : 1;
+ 116   2            LED7 = i == 7 ? 0 : 1;
+ 117   2            LED8 = i == 8 ? 0 : 1;
+ 118   2            delay_ms(250);
+ 119   2          }
+ 120   1      }
+ 121          
+ 122          //led灯从右到左闪灯
+ 123          void led_to_left() {
+ 124   1          u8 j;
+ 125   1          for(j=8;j>0;j--) {
+ 126   2            LED1 = j == 1 ? 0 : 1;
+ 127   2            LED2 = j == 2 ? 0 : 1;
+ 128   2            LED3 = j == 3 ? 0 : 1;
+ 129   2            LED4 = j == 4 ? 0 : 1;
+ 130   2            LED5 = j == 5 ? 0 : 1;
+ 131   2            LED6 = j == 6 ? 0 : 1;
+ 132   2            LED7 = j == 7 ? 0 : 1;
+ 133   2            LED8 = j == 8 ? 0 : 1;
+ 134   2            delay_ms(250);
+ 135   2          }
+ 136   1      }
+ 137          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    385    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      13
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

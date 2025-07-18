@@ -1,0 +1,121 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              02/27/2025 18:12:53 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "STC8G_H_Delay.h"
+   2          #include "STC8G_H_GPIO.h"
+   3          #include "STC8G_H_NVIC.h"
+   4          #include "STC8G_H_UART.h"
+   5          #include "STC8G_H_Switch.h"
+   6          
+   7          
+   8          /******************* IO配置函数 *******************/
+   9          void  GPIO_config(void)
+  10          {
+  11   1          GPIO_InitTypeDef  GPIO_InitStructure;   //结构定义
+  12   1      
+  13   1          GPIO_InitStructure.Pin  = GPIO_Pin_0 | GPIO_Pin_1;    //指定要初始化的IO, GPIO_Pin_0 ~ GPIO_Pin_7
+  14   1          GPIO_InitStructure.Mode = GPIO_PullUp;  //指定IO的输入或输出方式,GPIO_PullUp,GPIO_HighZ,GPIO_OUT_OD,GPI
+             -O_OUT_PP
+  15   1          GPIO_Inilize(GPIO_P3,&GPIO_InitStructure);  //初始化
+  16   1      }
+  17          
+  18          
+  19          /***************  串口初始化函数 *****************/
+  20          void  UART_config(void)
+  21          {
+  22   1          COMx_InitDefine   COMx_InitStructure;         //结构定义
+  23   1      
+  24   1          COMx_InitStructure.UART_Mode      = UART_8bit_BRTx; //模式, UART_ShiftRight,UART_8bit_BRTx,UART_9bit,U
+             -ART_9bit_BRTx
+  25   1          COMx_InitStructure.UART_BRT_Use   = BRT_Timer1;     //选择波特率发生器, BRT_Timer1, BRT_Timer2 (注意: 串
+             -口2固定使用BRT_Timer2)
+  26   1          COMx_InitStructure.UART_BaudRate  = 115200ul;     //波特率, 一般 110 ~ 115200
+  27   1          COMx_InitStructure.UART_RxEnable  = ENABLE;       //接收允许,   ENABLE或DISABLE
+  28   1          COMx_InitStructure.BaudRateDouble = DISABLE;      //波特率加倍, ENABLE或DISABLE
+  29   1          UART_Configuration(UART1, &COMx_InitStructure);   //初始化串口1 UART1,UART2,UART3,UART4
+  30   1        
+  31   1        
+  32   1          NVIC_UART1_Init(ENABLE,Priority_1);   //中断使能, ENABLE\DISABLE; 优先级(低到高) Priority_0,Priority_1,
+             -Priority_2,Priority_3
+  33   1          
+  34   1          UART1_SW(UART1_SW_P30_P31);   //UART1_SW_P30_P31,UART1_SW_P36_P37,UART1_SW_P16_P17,UART1_SW_P43_P44
+  35   1      }
+  36          
+  37          void main() {
+  38   1           int i;
+  39   1        
+  40   1        
+  41   1          // EAXSFR();    /* 扩展寄存器访问使能 */
+  42   1        
+  43   1          //1.配置IO模式
+  44   1          GPIO_config();
+  45   1        
+  46   1          //2.配置串口,打开全局中断
+  47   1          UART_config();
+  48   1          EA = 1;
+  49   1        
+  50   1        
+C51 COMPILER V9.60.7.0   MAIN                                                              02/27/2025 18:12:53 PAGE 2   
+
+  51   1          P3M1 = 1;
+  52   1          P3M0 = 1;
+  53   1        
+  54   1        
+  55   1          while(1) {
+  56   2             //判断串口是否有数据过来
+  57   2              //if( COM1.RX_Cnt > 0 && --COM1.RX_TimeOut == 0 ) { //必须收满
+  58   2             if( COM1.RX_Cnt > 0) {
+  59   3          
+  60   3                //获取数据，遍历数组
+  61   3      //           for(i=0;i<COM1.RX_Cnt;i++) {
+  62   3      //             
+  63   3      //              //RX1_Buffer[i]就是接受到的数据
+  64   3      //              //TX1_write2buff的目的是把数据重新发送出去，这样就知道接受了什么数据了
+  65   3      //              TX1_write2buff(RX1_Buffer[i]);
+  66   3      //           }
+  67   3      //           
+  68   3                 if(RX1_Buffer[0] == 0x01) {
+  69   4                     P34 = 1;
+  70   4                 } else {
+  71   4                     P34 = 0;
+  72   4                 }
+  73   3                 
+  74   3                 delay_ms(250);
+  75   3                 delay_ms(250);
+  76   3                 delay_ms(250);
+  77   3                 delay_ms(250);
+  78   3                 
+  79   3                 
+  80   3                  //已经把数据处理好了，计数就要归0
+  81   3                  COM1.RX_Cnt = 0;
+  82   3              }
+  83   2             
+  84   2              //已经把数据处理好了，计数就要归0,写错位置了！！！！！
+  85   2              //COM1.RX_Cnt = 0;
+  86   2            
+  87   2              delay_ms(50);
+  88   2          }
+  89   1      
+  90   1      }
+*** WARNING C280 IN LINE 38 OF main.c: 'i': unreferenced local variable
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    125    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      13
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

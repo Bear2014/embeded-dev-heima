@@ -1,0 +1,150 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              04/27/2025 15:48:19 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "lib/config.h"
+   2          #include "lib/STC8G_H_GPIO.h"
+   3          #include "lib/STC8G_H_Delay.h"
+   4          #include "lib/STC8G_H_UART.h"
+   5          #include "lib/StC8G_H_NVIC.h"
+   6          #include "lib/STC8G_H_Switch.h"
+   7          
+   8          void GPIO_Config();
+   9          void UART_Config();
+  10          
+  11          #define KEY1   P51
+  12          #define KEY2   P52
+  13          #define KEY3   P53
+  14          #define KEY4   P54
+  15          
+  16          #define KEY_UP 1 //按键抬起状态
+  17          #define KEY_DOWN 0 //按键按下状态
+  18          
+  19          u8 key_last_state[] = {KEY_UP,KEY_UP,KEY_UP,KEY_UP}; //按钮抬起状态
+  20          
+  21          #define is_key_up(i)  key_last_state[i] == KEY_UP
+  22          #define is_key_down(i)  key_last_state[i] == KEY_DOWN
+  23          
+  24          void main() {
+  25   1          int res;
+  26   1          
+  27   1          EAXSFR();
+  28   1          GPIO_Config();
+  29   1          UART_Config();
+  30   1        
+  31   1          EA = 1;
+  32   1        
+  33   1          printf("starting...\r\n");
+  34   1        
+  35   1      //    res = 2 + 2*2;
+  36   1      //    printf("res=%d",res); 
+  37   1        
+  38   1          while(1) {
+  39   2          
+  40   2            if(KEY1 == KEY_UP && is_key_down(0)) { //按钮抬起的瞬间
+  41   3               printf("key1 up\r\n");
+  42   3               key_last_state[0] = KEY_UP;
+  43   3            } else if(KEY1 == KEY_DOWN && is_key_up(0) == KEY_UP) { //按钮按下的瞬间
+  44   3               printf("key1 down\r\n");
+  45   3               key_last_state[0] = KEY_DOWN;
+  46   3            }
+  47   2            
+  48   2            //这里有问题！！！
+  49   2            if(KEY2 == KEY_UP && is_key_down(1) == KEY_DOWN) { //按钮抬起的瞬间
+  50   3               printf("key2 up\r\n");
+  51   3               key_last_state[1] = KEY_UP;
+  52   3            } else if(KEY2 == KEY_DOWN && is_key_up(1) == KEY_UP) { //按钮按下的瞬间
+  53   3               printf("key2 down\r\n");
+  54   3               key_last_state[1] = KEY_DOWN;
+C51 COMPILER V9.60.7.0   MAIN                                                              04/27/2025 15:48:19 PAGE 2   
+
+  55   3            }
+  56   2            
+  57   2            
+  58   2            if(KEY3 == KEY_UP && is_key_down(2) == KEY_DOWN) { //按钮抬起的瞬间
+  59   3               printf("key3 up\r\n");
+  60   3               key_last_state[2] = KEY_UP;
+  61   3            } else if(KEY3 == KEY_DOWN && is_key_down(2) == KEY_UP) { //按钮按下的瞬间
+  62   3               printf("key3 down\r\n");
+  63   3               key_last_state[2] = KEY_DOWN;
+  64   3            }
+  65   2            
+  66   2            
+  67   2            if(KEY4 == KEY_UP && is_key_down(3) == KEY_DOWN) { //按钮抬起的瞬间
+  68   3               printf("key4 up\r\n");
+  69   3               key_last_state[3] = KEY_UP;
+  70   3            } else if(KEY4 == KEY_DOWN && is_key_down(3) == KEY_UP) { //按钮按下的瞬间
+  71   3               printf("key4 down\r\n");
+  72   3               key_last_state[3] = KEY_DOWN;
+  73   3            }
+  74   2            
+  75   2            
+  76   2          
+  77   2            delay_ms(250);
+  78   2          } 
+  79   1      
+  80   1      }
+*** WARNING C280 IN LINE 25 OF main.c: 'res': unreferenced local variable
+  81          
+  82          
+  83          
+  84          void GPIO_Config() {
+  85   1          GPIO_InitTypeDef gpio_init;
+  86   1        
+  87   1          //按钮1:P51
+  88   1          gpio_init.Mode = GPIO_PullUp;
+  89   1          gpio_init.Pin = GPIO_Pin_1;
+  90   1          GPIO_Inilize(GPIO_P5, &gpio_init);
+  91   1        
+  92   1          //LED_SW:P45
+  93   1          gpio_init.Mode = GPIO_PullUp;
+  94   1          gpio_init.Pin = GPIO_Pin_5;
+  95   1          GPIO_Inilize(GPIO_P4, &gpio_init);
+  96   1        
+  97   1          //LED1:P27
+  98   1          gpio_init.Mode = GPIO_PullUp;
+  99   1          gpio_init.Pin = GPIO_Pin_7;
+ 100   1          GPIO_Inilize(GPIO_P2, &gpio_init);
+ 101   1      }
+ 102          
+ 103          
+ 104          //配置串口
+ 105          void UART_Config() {
+ 106   1          COMx_InitDefine   COMx_InitStructure;         //结构定义
+ 107   1      
+ 108   1          COMx_InitStructure.UART_Mode      = UART_8bit_BRTx; //模式, UART_ShiftRight,UART_8bit_BRTx,UART_9bit,U
+             -ART_9bit_BRTx
+ 109   1          COMx_InitStructure.UART_BRT_Use   = BRT_Timer1;     //选择波特率发生器, BRT_Timer1, BRT_Timer2 (注意: 串
+             -口2固定使用BRT_Timer2)
+ 110   1          COMx_InitStructure.UART_BaudRate  = 115200ul;     //波特率, 一般 110 ~ 115200
+ 111   1          COMx_InitStructure.UART_RxEnable  = ENABLE;       //接收允许,   ENABLE或DISABLE
+ 112   1          COMx_InitStructure.BaudRateDouble = DISABLE;      //波特率加倍, ENABLE或DISABLE
+ 113   1          UART_Configuration(UART1, &COMx_InitStructure);   //初始化串口1 UART1,UART2,UART3,UART4
+C51 COMPILER V9.60.7.0   MAIN                                                              04/27/2025 15:48:19 PAGE 3   
+
+ 114   1        
+ 115   1          NVIC_UART1_Init(ENABLE,Priority_1);   //中断使能, ENABLE\DISABLE; 优先级(低到高) Priority_0,Priority_1,
+             -Priority_2,Priority_3
+ 116   1          
+ 117   1          UART1_SW(UART1_SW_P30_P31);   //UART1_SW_P30_P31,UART1_SW_P36_P37,UART1_SW_P16_P17,UART1_SW_P43_P44
+ 118   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    346    ----
+   CONSTANT SIZE    =    102    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      4      13
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

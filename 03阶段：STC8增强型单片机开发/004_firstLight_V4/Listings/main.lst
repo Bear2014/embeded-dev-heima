@@ -1,0 +1,66 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              03/04/2025 06:19:41 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "STC8H.H"
+   2          #include "Config.h"
+   3          #include "STC8G_H_GPIO.H" 
+   4          #include "STC8G_H_Delay.H"
+   5          
+   6          void GPIO_config();
+   7          
+   8          void main() {
+   9   1        
+  10   1          GPIO_config();
+  11   1          
+  12   1          while(1) {
+  13   2            P34 = 0; //开灯
+  14   2            delay_ms(250);
+  15   2            delay_ms(250);
+  16   2            
+  17   2            P34 = 1; //熄灯
+  18   2      //      //Delay1000ms();
+  19   2            delay_ms(250);
+  20   2            delay_ms(250);
+  21   2            delay_ms(250);
+  22   2            delay_ms(250);
+  23   2            delay_ms(250);
+  24   2            delay_ms(250);
+  25   2            delay_ms(250);
+  26   2            delay_ms(250);
+  27   2            
+  28   2      //        P34 = 1; //熄灯
+  29   2      //        P34 = 0; //开灯 //怎么是反的？？？？？？
+  30   2          }
+  31   1      }
+  32          
+  33          //===============================================
+  34          //GPIO配置
+  35          //GPIO：通用输入输出，用来控制端口引脚的输入输出模式
+  36          //===============================================
+  37          void GPIO_config(){
+  38   1          GPIO_InitTypeDef  GPIO_Init;
+  39   1          GPIO_Init.Mode = GPIO_PullUp;   //IO模式,     GPIO_PullUp,GPIO_HighZ,GPIO_OUT_OD,GPIO_OUT_PP
+  40   1          GPIO_Init.Pin = GPIO_Pin_4;    //要设置的引脚
+  41   1          GPIO_Inilize(GPIO_P3, &GPIO_Init);
+  42   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     75    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

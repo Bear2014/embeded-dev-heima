@@ -1,0 +1,106 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              04/10/2025 19:45:54 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "lib/STC8G_H_GPIO.h"
+   2          #include "lib/STC8G_H_Delay.h"
+   3          #include "lib/STC8H_PWM.h"
+   4          #include "lib/STC8G_H_Switch.h"
+   5          #include "lib/STC8G_H_NVIC.h"
+   6          
+   7          #define motor P01
+   8          
+   9          void GPIO_Config();
+  10          void PWM_Config();
+  11          
+  12          #define PERIOD ((MAIN_Fosc / 1000) - 1)
+  13          PWMx_Duty  duty;
+  14          
+  15          void main() {
+  16   1        int percent = 0;
+  17   1        int direction = 1;
+  18   1        
+  19   1        EA = 1;
+  20   1        GPIO_Config();
+  21   1        
+  22   1        EAXSFR();   /* 扩展寄存器访问使能 */
+  23   1        PWM_Config();
+  24   1        
+  25   1        while(1) {
+  26   2          percent +=  direction;
+  27   2          if(percent == 100) {
+  28   3            delay_ms(100);
+  29   3            direction = -1;
+  30   3          } else if(percent == 0){
+  31   3            delay_ms(100);
+  32   3            direction = 1;
+  33   3          }
+  34   2          
+  35   2      //     if(percent > 100) {
+  36   2      //         percent = 0;
+  37   2      //     }
+  38   2          
+  39   2          duty.PWM6_Duty = PERIOD * percent / 100;
+  40   2          UpdatePwm(PWM6, &duty);
+  41   2          
+  42   2          delay_ms(10);
+  43   2        }
+  44   1      }
+  45          
+  46          
+  47          void GPIO_Config() {
+  48   1        GPIO_InitTypeDef GPIO_InitTypeDef;
+  49   1      
+  50   1        GPIO_InitTypeDef.Mode = GPIO_OUT_PP;
+  51   1        GPIO_InitTypeDef.Pin = GPIO_Pin_1;
+  52   1        GPIO_Inilize(GPIO_P0,&GPIO_InitTypeDef);
+  53   1      }
+  54          
+C51 COMPILER V9.60.7.0   MAIN                                                              04/10/2025 19:45:54 PAGE 2   
+
+  55          //PWM配置
+  56          void PWM_Config() {
+  57   1          PWMx_InitDefine pwm_init;
+  58   1        
+  59   1          //配置PWM6：对应P01
+  60   1          pwm_init.PWM_Mode = CCMRn_PWM_MODE1;
+  61   1          pwm_init.PWM_Duty = 0; //关键配置
+  62   1          pwm_init.PWM_EnoSelect = ENO6P; //输出通道选择[对应LED1的输出引脚]
+  63   1          PWM_Configuration(PWM6,&pwm_init);
+  64   1        
+  65   1      
+  66   1          //配置PWMB!!!!
+  67   1          pwm_init.PWM_Period = PERIOD;
+  68   1          pwm_init.PWM_DeadTime = 0; //死区发生器，0~255
+  69   1          pwm_init.PWM_CEN_Enable = ENABLE; //使能计数器，ENABLE，DISABLE
+  70   1          pwm_init.PWM_MainOutEnable = ENABLE; //主输出使用，ENABLE,DISABLE
+  71   1          PWM_Configuration(PWMB,&pwm_init);
+  72   1      
+  73   1          
+  74   1          //切换引脚
+  75   1          PWM6_SW(PWM6_SW_P01);
+  76   1      
+  77   1          
+  78   1          //中断使能
+  79   1          NVIC_PWM_Init(PWMA,DISABLE,Priority_0);
+  80   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    202    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     16      15
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

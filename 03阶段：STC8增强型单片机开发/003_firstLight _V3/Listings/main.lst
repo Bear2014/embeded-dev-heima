@@ -1,0 +1,63 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              03/03/2025 22:24:55 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "stc8h.h"
+   2          
+   3          void Delay1000ms(void)  //@24.000MHz
+   4          {
+   5   1        unsigned char data i, j, k;
+   6   1        
+   7   1        i = 122;
+   8   1        j = 193;
+   9   1        k = 128;
+  10   1        do
+  11   1        {
+  12   2          do
+  13   2          {
+  14   3            while (--k);
+  15   3          } while (--j);
+  16   2        } while (--i);
+  17   1      }
+  18          
+  19          void main() {
+  20   1        
+  21   1          P3M1 &= ~0x10, P3M0 &= ~0x10;  //准双向
+  22   1      //    P3M1 &= ~0x10, P3M0 |= 0x10;  //推挽输出
+  23   1      //    P3M1 |= 0x10, P3M0 &= ~0x10;  //高阻
+  24   1      //    P3M1 |= 0x10, P3M0 |= 0x10;  //开漏
+  25   1      
+  26   1      //    P3M1 = 0x00, P3M0 = 0x00;  //准双向
+  27   1      //    P3M1 = 0x00, P3M0 = 0x10;  //推挽输出
+  28   1      //    P3M1 = 0x10, P3M0 = 0x00;  //高阻
+  29   1      //    P3M1 = 0x10, P3M0 = 0x10;  //开漏
+  30   1        
+  31   1        
+  32   1          while(1) {
+  33   2            P34 = 1;
+  34   2            Delay1000ms();
+  35   2            
+  36   2            P34 = 0;
+  37   2            Delay1000ms();
+  38   2          }
+  39   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     31    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

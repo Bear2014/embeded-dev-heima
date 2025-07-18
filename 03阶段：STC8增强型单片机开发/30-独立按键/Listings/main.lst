@@ -1,0 +1,110 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              04/27/2025 12:14:53 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "lib/config.h"
+   2          #include "lib/STC8G_H_GPIO.h"
+   3          #include "lib/STC8G_H_Delay.h"
+   4          #include "lib/STC8G_H_UART.h"
+   5          #include "lib/StC8G_H_NVIC.h"
+   6          #include "lib/STC8G_H_Switch.h"
+   7          
+   8          void GPIO_Config();
+   9          void UART_Config();
+  10          
+  11          #define KEY1   P51
+  12          #define LED_SW P45
+  13          #define LED1   P27
+  14          
+  15          u8 key1_last_state = 1; //按钮抬起状态
+  16          
+  17          void main() {
+  18   1          EAXSFR();
+  19   1          GPIO_Config();
+  20   1          UART_Config();
+  21   1        
+  22   1          EA = 1;
+  23   1        
+  24   1          LED_SW = 0;
+  25   1          LED1 = 1;
+  26   1        
+  27   1          printf("starting...\r\n");
+  28   1        
+  29   1          while(1) {
+  30   2          
+  31   2            if(KEY1 == 1 && key1_last_state == 0) { //按钮抬起的瞬间
+  32   3               printf("key up\r\n");
+  33   3               key1_last_state = 1;
+  34   3            } else if(KEY1 == 0 && key1_last_state == 1) { //按钮按下的瞬间
+  35   3               printf("key down\r\n");
+  36   3               key1_last_state = 0;
+  37   3               LED1 = !LED1;
+  38   3            }
+  39   2          
+  40   2            delay_ms(250);
+  41   2          } 
+  42   1      
+  43   1      }
+  44          
+  45          
+  46          
+  47          void GPIO_Config() {
+  48   1          GPIO_InitTypeDef gpio_init;
+  49   1        
+  50   1          //按钮1:P51
+  51   1          gpio_init.Mode = GPIO_PullUp;
+  52   1          gpio_init.Pin = GPIO_Pin_1;
+  53   1          GPIO_Inilize(GPIO_P5, &gpio_init);
+  54   1        
+C51 COMPILER V9.60.7.0   MAIN                                                              04/27/2025 12:14:53 PAGE 2   
+
+  55   1          //LED_SW:P45
+  56   1          gpio_init.Mode = GPIO_PullUp;
+  57   1          gpio_init.Pin = GPIO_Pin_5;
+  58   1          GPIO_Inilize(GPIO_P4, &gpio_init);
+  59   1        
+  60   1          //LED1:P27
+  61   1          gpio_init.Mode = GPIO_PullUp;
+  62   1          gpio_init.Pin = GPIO_Pin_7;
+  63   1          GPIO_Inilize(GPIO_P2, &gpio_init);
+  64   1      }
+  65          
+  66          
+  67          //配置串口
+  68          void UART_Config() {
+  69   1          COMx_InitDefine   COMx_InitStructure;         //结构定义
+  70   1      
+  71   1          COMx_InitStructure.UART_Mode      = UART_8bit_BRTx; //模式, UART_ShiftRight,UART_8bit_BRTx,UART_9bit,U
+             -ART_9bit_BRTx
+  72   1          COMx_InitStructure.UART_BRT_Use   = BRT_Timer1;     //选择波特率发生器, BRT_Timer1, BRT_Timer2 (注意: 串
+             -口2固定使用BRT_Timer2)
+  73   1          COMx_InitStructure.UART_BaudRate  = 115200ul;     //波特率, 一般 110 ~ 115200
+  74   1          COMx_InitStructure.UART_RxEnable  = ENABLE;       //接收允许,   ENABLE或DISABLE
+  75   1          COMx_InitStructure.BaudRateDouble = DISABLE;      //波特率加倍, ENABLE或DISABLE
+  76   1          UART_Configuration(UART1, &COMx_InitStructure);   //初始化串口1 UART1,UART2,UART3,UART4
+  77   1        
+  78   1          NVIC_UART1_Init(ENABLE,Priority_1);   //中断使能, ENABLE\DISABLE; 优先级(低到高) Priority_0,Priority_1,
+             -Priority_2,Priority_3
+  79   1          
+  80   1          UART1_SW(UART1_SW_P30_P31);   //UART1_SW_P30_P31,UART1_SW_P36_P37,UART1_SW_P16_P17,UART1_SW_P43_P44
+  81   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    167    ----
+   CONSTANT SIZE    =     34    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1      11
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

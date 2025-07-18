@@ -1,0 +1,65 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              03/03/2025 04:13:44 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <intrins.h>
+   2          
+   3          sfr  P3M1 = 0xb1;
+   4          sfr  P3M0 = 0xb2;
+   5          
+   6          sfr  P3 = 0xb0;
+   7          sbit P34 = P3^4;
+   8          
+   9          void Delay1000ms(void)  //@24.000MHz
+  10          {
+  11   1         unsigned char data i, j, k;
+  12   1        
+  13   1         int m;
+  14   1         for(m=0;m<=11000;m++) {
+  15   2            _nop_();
+  16   2         }  
+  17   1      
+  18   1        i = 122;
+  19   1        j = 193;
+  20   1        k = 128;
+  21   1        do
+  22   1        {
+  23   2          do
+  24   2          {
+  25   3            while (--k);
+  26   3          } while (--j);
+  27   2        } while (--i);
+  28   1      }
+  29          
+  30          void main() {
+  31   1          P3M1 = 1;
+  32   1          P3M0 = 0;                                //设置P0.0~P0.7为双向口模式
+  33   1          
+  34   1          while(1) {
+  35   2            P34 = 1;
+  36   2            Delay1000ms();
+  37   2            
+  38   2            P34 = 0;
+  39   2            Delay1000ms();
+  40   2          }
+  41   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     46    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

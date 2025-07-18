@@ -1,0 +1,154 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              04/11/2025 00:39:38 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "lib/STC8G_H_GPIO.h"
+   2          #include "lib/STC8G_H_Delay.h"
+   3          #include "lib/STC8H_PWM.h"
+   4          #include "lib/STC8G_H_Switch.h"
+   5          #include "lib/STC8G_H_NVIC.h"
+   6          #include "lib/STC8G_H_UART.h"
+   7          
+   8          /**
+   9           * 串口输入0x00的时候，不能停止马达，效果失败！！！！！！！！！！1
+  10           **/
+  11          
+  12          #define Motor P01
+  13          
+  14          void GPIO_Config();
+  15          void UART_Config();
+  16          void PWM_Config();
+  17          void Stop_Motor();
+  18          
+  19          #define PERIOD ((MAIN_Fosc / 1000) - 1)
+  20          PWMx_Duty  duty;
+  21          
+  22          int isUpdate = 1;
+  23          void main() {
+  24   1        int percent = 0;
+  25   1        int direction = 1;
+  26   1        
+  27   1        EA = 1;
+  28   1        GPIO_Config();
+  29   1        
+  30   1        EAXSFR();   /* 扩展寄存器访问使能 */
+  31   1        PWM_Config();
+  32   1        
+  33   1        while(1) {
+  34   2          if(isUpdate) {
+  35   3            percent +=  direction;
+  36   3            if(percent == 100) {
+  37   4              direction = -1;
+  38   4            } else if(percent == 0){
+  39   4              direction = 1;
+  40   4            }
+  41   3            
+  42   3            duty.PWM6_Duty = PERIOD * percent / 100;
+  43   3            UpdatePwm(PWM6, &duty);   
+  44   3          }
+  45   2          
+  46   2          
+  47   2          //接受串口来的数据
+  48   2          if(COM1.RX_Cnt>0 && --COM1.RX_TimeOut==0) {
+  49   3            if(RX1_Buffer[0] == 0x00) { //停止震动
+  50   4              TX1_write2buff(RX1_Buffer[0]); //打印接受到的数据
+  51   4              
+  52   4              Stop_Motor();
+  53   4              isUpdate = 0;
+  54   4            } else if(RX1_Buffer[0] == 0x01) { //重新震动
+C51 COMPILER V9.60.7.0   MAIN                                                              04/11/2025 00:39:38 PAGE 2   
+
+  55   4              PWM_Config();
+  56   4              
+  57   4              isUpdate = 1;
+  58   4              percent = 0;
+  59   4              direction = 1;
+  60   4            }
+  61   3            
+  62   3            COM1.RX_Cnt = 0;
+  63   3          }
+  64   2          
+  65   2          delay_ms(20);
+  66   2        }
+  67   1        
+  68   1      }
+  69          
+  70          
+  71          void GPIO_Config() {
+  72   1        GPIO_InitTypeDef GPIO_InitTypeDef;
+  73   1      
+  74   1        GPIO_InitTypeDef.Mode = GPIO_OUT_PP;
+  75   1        GPIO_InitTypeDef.Pin = GPIO_Pin_1;
+  76   1        GPIO_Inilize(GPIO_P0,&GPIO_InitTypeDef);
+  77   1      }
+  78          
+  79          
+  80          void UART_config(void) {
+  81   1          COMx_InitDefine   COMx_InitStructure;         //结构定义
+  82   1      
+  83   1          COMx_InitStructure.UART_Mode      = UART_8bit_BRTx; //模式, UART_ShiftRight,UART_8bit_BRTx,UART_9bit,U
+             -ART_9bit_BRTx
+  84   1          COMx_InitStructure.UART_BRT_Use   = BRT_Timer1;     //选择波特率发生器, BRT_Timer1, BRT_Timer2 (注意: 串
+             -口2固定使用BRT_Timer2)
+  85   1          COMx_InitStructure.UART_BaudRate  = 115200ul;     //波特率, 一般 110 ~ 115200
+  86   1          COMx_InitStructure.UART_RxEnable  = ENABLE;       //接收允许,   ENABLE或DISABLE
+  87   1          COMx_InitStructure.BaudRateDouble = DISABLE;      //波特率加倍, ENABLE或DISABLE
+  88   1          UART_Configuration(UART1, &COMx_InitStructure);   //初始化串口1 UART1,UART2,UART3,UART4
+  89   1        
+  90   1          NVIC_UART1_Init(ENABLE,Priority_1);   //中断使能, ENABLE\DISABLE; 优先级(低到高) Priority_0,Priority_1,
+             -Priority_2,Priority_3
+  91   1          
+  92   1          UART1_SW(UART1_SW_P30_P31);   //UART1_SW_P30_P31,UART1_SW_P36_P37,UART1_SW_P16_P17,UART1_SW_P43_P44
+  93   1      }
+  94          
+  95          
+  96          //PWM配置
+  97          void PWM_Config() {
+  98   1          PWMx_InitDefine pwm_init;
+  99   1        
+ 100   1          //配置PWM6：对应P01
+ 101   1          pwm_init.PWM_Mode = CCMRn_PWM_MODE1;
+ 102   1          pwm_init.PWM_Duty = 0; //关键配置
+ 103   1          pwm_init.PWM_EnoSelect = ENO6P; //输出通道选择[对应LED1的输出引脚]
+ 104   1          PWM_Configuration(PWM6,&pwm_init);
+ 105   1        
+ 106   1          //配置PWMB!!!!
+ 107   1          pwm_init.PWM_Period = PERIOD;
+ 108   1          pwm_init.PWM_DeadTime = 0; //死区发生器，0~255
+ 109   1          pwm_init.PWM_CEN_Enable = ENABLE; //使能计数器，ENABLE，DISABLE
+ 110   1          pwm_init.PWM_MainOutEnable = ENABLE; //主输出使用，ENABLE,DISABLE
+ 111   1          PWM_Configuration(PWMB,&pwm_init);
+ 112   1      
+ 113   1          //切换引脚
+C51 COMPILER V9.60.7.0   MAIN                                                              04/11/2025 00:39:38 PAGE 3   
+
+ 114   1          PWM6_SW(PWM6_SW_P01);
+ 115   1      
+ 116   1          //中断使能
+ 117   1          NVIC_PWM_Init(PWMA,DISABLE,Priority_0);
+ 118   1      }
+ 119          
+ 120          void Stop_Motor() {
+ 121   1          PWMx_InitDefine pwm_init;
+ 122   1          PWM_Configuration(PWM6,&pwm_init);
+ 123   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    316    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     18      33
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

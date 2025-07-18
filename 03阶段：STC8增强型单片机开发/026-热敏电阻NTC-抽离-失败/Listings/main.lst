@@ -1,0 +1,75 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              04/25/2025 21:34:01 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "lib/STC8G_H_Delay.h"
+   2          #include "lib/STC8G_H_UART.h"
+   3          #include "lib/STC8G_H_Switch.h"
+   4          #include "lib/STC8G_H_NVIC.h"
+   5          
+   6          #include "NTC.h"
+   7          
+   8          void uart_Config();
+   9          
+  10          
+  11          void main() {
+  12   1          int cur_temp;
+  13   1      
+  14   1          NTC_Init();
+  15   1          
+  16   1          printf("start...\n");
+  17   1        
+  18   1          while(1) {
+  19   2            
+  20   2            cur_temp = NTC_get_temp();
+  21   2            printf("cur_temp=%d\n",cur_temp);
+  22   2            
+  23   2            delay_ms(250);
+  24   2            delay_ms(250);
+  25   2            delay_ms(250);
+  26   2            delay_ms(250);
+  27   2          }
+  28   1        
+  29   1      }
+  30          
+  31          
+  32          //配置串口
+  33          void uart_Config() {
+  34   1          COMx_InitDefine   COMx_InitStructure;         //结构定义
+  35   1      
+  36   1          COMx_InitStructure.UART_Mode      = UART_8bit_BRTx; //模式, UART_ShiftRight,UART_8bit_BRTx,UART_9bit,U
+             -ART_9bit_BRTx
+  37   1          COMx_InitStructure.UART_BRT_Use   = BRT_Timer1;     //选择波特率发生器, BRT_Timer1, BRT_Timer2 (注意: 串
+             -口2固定使用BRT_Timer2)
+  38   1          COMx_InitStructure.UART_BaudRate  = 115200ul;     //波特率, 一般 110 ~ 115200
+  39   1          COMx_InitStructure.UART_RxEnable  = ENABLE;       //接收允许,   ENABLE或DISABLE
+  40   1          COMx_InitStructure.BaudRateDouble = DISABLE;      //波特率加倍, ENABLE或DISABLE
+  41   1          UART_Configuration(UART1, &COMx_InitStructure);   //初始化串口1 UART1,UART2,UART3,UART4
+  42   1        
+  43   1          NVIC_UART1_Init(ENABLE,Priority_1);   //中断使能, ENABLE\DISABLE; 优先级(低到高) Priority_0,Priority_1,
+             -Priority_2,Priority_3
+  44   1          
+  45   1          UART1_SW(UART1_SW_P30_P31);   //UART1_SW_P30_P31,UART1_SW_P36_P37,UART1_SW_P16_P17,UART1_SW_P43_P44
+  46   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    101    ----
+   CONSTANT SIZE    =     23    ----
+C51 COMPILER V9.60.7.0   MAIN                                                              04/25/2025 21:34:01 PAGE 2   
+
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      11
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

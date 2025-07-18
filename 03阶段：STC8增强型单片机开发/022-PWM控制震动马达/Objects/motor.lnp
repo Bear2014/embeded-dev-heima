@@ -1,0 +1,8 @@
+".\Objects\main.obj",
+".\Objects\STC8G_H_Delay.obj",
+".\Objects\STC8G_H_GPIO.obj",
+".\Objects\STC8H_PWM.obj",
+".\Objects\STC8G_H_NVIC.obj" 
+TO ".\Objects\motor" 
+PRINT(".\Listings\motor.m51") RAMSIZE(256) 
+DISABLEWARNING (16) 
