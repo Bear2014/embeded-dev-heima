@@ -1,0 +1,61 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              07/27/2025 10:43:09 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\main
+                    -.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include "lib/config.h"
+   2          #include "lib/STC8G_H_GPIO.h"
+   3          #include "lib/STC8G_H_Delay.h"
+   4          
+   5          void GPIO_Config();
+   6          
+   7          #define BUZZER  P00
+   8          
+   9          
+  10          void main() {
+  11   1      
+  12   1          GPIO_Config();
+  13   1        
+  14   1        
+  15   1          //有源蜂鸣器，给点就响；无源蜂鸣器，需要提供震荡源，提供交流电才响
+  16   1          //BUZZER = 1;
+  17   1          
+  18   1        
+  19   1          while(1) {
+  20   2             BUZZER = 1;
+  21   2             delay_ms(2);
+  22   2            
+  23   2             BUZZER = 0;
+  24   2             delay_ms(2);
+  25   2          }
+  26   1          
+  27   1      }
+  28          
+  29          
+  30          void GPIO_Config() {
+  31   1          GPIO_InitTypeDef gpio_init;
+  32   1      
+  33   1          //推挽模式可以避免反向电流的影响
+  34   1          gpio_init.Mode = GPIO_OUT_PP;
+  35   1          gpio_init.Pin = GPIO_Pin_0;
+  36   1          GPIO_Inilize(GPIO_P0, &gpio_init);
+  37   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     36    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       2
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

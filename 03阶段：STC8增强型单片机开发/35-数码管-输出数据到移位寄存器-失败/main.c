@@ -6,7 +6,6 @@
 #include "lib/STC8G_H_Switch.h"
 
 void GPIO_Config();
-void UART_Config();
 
 #define NIX_DI  P44 //数据输入
 #define NIX_SCK P42 //移位寄存器
@@ -14,11 +13,10 @@ void UART_Config();
 
 
 void main() {
-  
 	  char i;
 	
 	  GPIO_Config();
-	
+	 
 	  //显示数字7
 	  //从高位开始显示：11111000
 	  for(i=7;i>=0;i--) {
@@ -39,25 +37,27 @@ void main() {
 		//与二进制位置相反的顺序
 		for(i=7;i>=0;i--) {
 			if(i != 2) {
-				NIX_DI = 1;
+				NIX_DI = 0; //灭
 			} else {
-				NIX_DI = 0;
+				NIX_DI = 1;
 			}
 			
-			//移位置寄存器(上升沿)
-			  NIX_SCK = 0;
-		    NOP2();
-		    NIX_SCK = 1;
-		    NOP2();
+			 //移位置寄存器(上升沿)
+			 NIX_SCK = 0;
+		   NOP2();
+		   NIX_SCK = 1;
+		   NOP2();
 		}
 		
 		//锁存操作
 		NIX_RCK = 0;
-		NOP();
+		NOP2();
 		NIX_RCK = 1;
 		NOP2();
 		
-		while(1) {};
+		while(1) {
+		   delay_ms(20);
+		}
 		
 
 }

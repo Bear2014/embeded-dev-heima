@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   MAIN                                                              07/21/2025 00:31:57 PAGE 1   
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 21:50:41 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
@@ -16,61 +16,60 @@ line level    source
    6          #include "lib/STC8G_H_Switch.h"
    7          
    8          void GPIO_Config();
-   9          void UART_Config();
-  10          
-  11          #define NIX_DI  P44 //数据输入
-  12          #define NIX_SCK P42 //移位寄存器
-  13          #define NIX_RCK P43 //锁存寄存器
+   9          
+  10          #define NIX_DI  P44 //数据输入
+  11          #define NIX_SCK P42 //移位寄存器
+  12          #define NIX_RCK P43 //锁存寄存器
+  13          
   14          
-  15          
-  16          void main() {
+  15          void main() {
+  16   1          char i;
   17   1        
-  18   1          char i;
-  19   1        
-  20   1          GPIO_Config();
-  21   1        
-  22   1          //显示数字7
-  23   1          //从高位开始显示：11111000
-  24   1          for(i=7;i>=0;i--) {
-  25   2              if(i<3) {
-  26   3                NIX_DI = 0;
-  27   3              } else {
-  28   3                NIX_DI = 1;
-  29   3              }
-  30   2              
-  31   2              //移位置寄存器(上升沿)
-  32   2              NIX_SCK = 0;
+  18   1          GPIO_Config();
+  19   1         
+  20   1          //显示数字7
+  21   1          //从高位开始显示：11111000
+  22   1          for(i=7;i>=0;i--) {
+  23   2              if(i<3) {
+  24   3                NIX_DI = 0;
+  25   3              } else {
+  26   3                NIX_DI = 1;
+  27   3              }
+  28   2              
+  29   2              //移位置寄存器(上升沿)
+  30   2              NIX_SCK = 0;
+  31   2              NOP2();
+  32   2              NIX_SCK = 1;
   33   2              NOP2();
-  34   2              NIX_SCK = 1;
-  35   2              NOP2();
-  36   2          }
-  37   1          
-  38   1          //然后再控制哪几个位置显示：7 7 空 7 7 7 7 7
-  39   1          //与二进制位置相反的顺序
-  40   1          for(i=7;i>=0;i--) {
-  41   2            if(i != 2) {
+  34   2          }
+  35   1          
+  36   1          //然后再控制哪几个位置显示：7 7 空 7 7 7 7 7
+  37   1          //与二进制位置相反的顺序
+  38   1          for(i=7;i>=0;i--) {
+  39   2            if(i != 2) {
+  40   3              NIX_DI = 0; //灭
+  41   3            } else {
   42   3              NIX_DI = 1;
-  43   3            } else {
-  44   3              NIX_DI = 0;
-  45   3            }
-  46   2            
-  47   2            //移位置寄存器(上升沿)
-  48   2              NIX_SCK = 0;
-  49   2              NOP2();
-  50   2              NIX_SCK = 1;
-  51   2              NOP2();
-  52   2          }
-  53   1          
-  54   1          //锁存操作
-C51 COMPILER V9.60.7.0   MAIN                                                              07/21/2025 00:31:57 PAGE 2   
+  43   3            }
+  44   2            
+  45   2             //移位置寄存器(上升沿)
+  46   2             NIX_SCK = 0;
+  47   2             NOP2();
+  48   2             NIX_SCK = 1;
+  49   2             NOP2();
+  50   2          }
+  51   1          
+  52   1          //锁存操作
+  53   1          NIX_RCK = 0;
+  54   1          NOP2();
+C51 COMPILER V9.60.7.0   MAIN                                                              07/22/2025 21:50:41 PAGE 2   
 
-  55   1          NIX_RCK = 0;
-  56   1          NOP();
-*** WARNING C206 IN LINE 56 OF main.c: 'NOP': missing function-prototype
-  57   1          NIX_RCK = 1;
-  58   1          NOP2();
-  59   1          
-  60   1          while(1) {};
+  55   1          NIX_RCK = 1;
+  56   1          NOP2();
+  57   1          
+  58   1          while(1) {
+  59   2             delay_ms(20);
+  60   2          }
   61   1          
   62   1      
   63   1      }
@@ -79,35 +78,36 @@ line level    source
   66          void GPIO_Config() {
   67   1          GPIO_InitTypeDef gpio_init;
   68   1      
-  69   1          gpio_init.Mode = GPIO_OUT_PP;
-  70   1          gpio_init.Pin = GPIO_Pin_4 | GPIO_Pin_2 | GPIO_Pin_3;
-  71   1          GPIO_Inilize(GPIO_P4, &gpio_init);
-  72   1      }
-  73          
+  69   1          //推挽模式可以避免反向电流的影响
+  70   1          gpio_init.Mode = GPIO_OUT_PP;
+  71   1          gpio_init.Pin = GPIO_Pin_4 | GPIO_Pin_2 | GPIO_Pin_3;
+  72   1          GPIO_Inilize(GPIO_P4, &gpio_init);
+  73   1      }
   74          
   75          
-  76          //配置串口
-  77          void UART_Config() {
-  78   1          COMx_InitDefine   COMx_InitStructure;         //结构定义
-  79   1      
-  80   1          COMx_InitStructure.UART_Mode      = UART_8bit_BRTx; //模式, UART_ShiftRight,UART_8bit_BRTx,UART_9bit,U
+  76          
+  77          //配置串口
+  78          void UART_Config() {
+  79   1          COMx_InitDefine   COMx_InitStructure;         //结构定义
+  80   1      
+  81   1          COMx_InitStructure.UART_Mode      = UART_8bit_BRTx; //模式, UART_ShiftRight,UART_8bit_BRTx,UART_9bit,U
              -ART_9bit_BRTx
-  81   1          COMx_InitStructure.UART_BRT_Use   = BRT_Timer1;     //选择波特率发生器, BRT_Timer1, BRT_Timer2 (注意: 串
+  82   1          COMx_InitStructure.UART_BRT_Use   = BRT_Timer1;     //选择波特率发生器, BRT_Timer1, BRT_Timer2 (注意: 串
              -口2固定使用BRT_Timer2)
-  82   1          COMx_InitStructure.UART_BaudRate  = 115200ul;     //波特率, 一般 110 ~ 115200
-  83   1          COMx_InitStructure.UART_RxEnable  = ENABLE;       //接收允许,   ENABLE或DISABLE
-  84   1          COMx_InitStructure.BaudRateDouble = DISABLE;      //波特率加倍, ENABLE或DISABLE
-  85   1          UART_Configuration(UART1, &COMx_InitStructure);   //初始化串口1 UART1,UART2,UART3,UART4
-  86   1        
-  87   1          NVIC_UART1_Init(ENABLE,Priority_1);   //中断使能, ENABLE\DISABLE; 优先级(低到高) Priority_0,Priority_1,
+  83   1          COMx_InitStructure.UART_BaudRate  = 115200ul;     //波特率, 一般 110 ~ 115200
+  84   1          COMx_InitStructure.UART_RxEnable  = ENABLE;       //接收允许,   ENABLE或DISABLE
+  85   1          COMx_InitStructure.BaudRateDouble = DISABLE;      //波特率加倍, ENABLE或DISABLE
+  86   1          UART_Configuration(UART1, &COMx_InitStructure);   //初始化串口1 UART1,UART2,UART3,UART4
+  87   1        
+  88   1          NVIC_UART1_Init(ENABLE,Priority_1);   //中断使能, ENABLE\DISABLE; 优先级(低到高) Priority_0,Priority_1,
              -Priority_2,Priority_3
-  88   1          
-  89   1          UART1_SW(UART1_SW_P30_P31);   //UART1_SW_P30_P31,UART1_SW_P36_P37,UART1_SW_P16_P17,UART1_SW_P43_P44
-  90   1      }
+  89   1          
+  90   1          UART1_SW(UART1_SW_P30_P31);   //UART1_SW_P30_P31,UART1_SW_P36_P37,UART1_SW_P16_P17,UART1_SW_P43_P44
+  91   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    139    ----
+   CODE SIZE        =    143    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
@@ -117,4 +117,4 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
 END OF MODULE INFORMATION.
 
 
-C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
