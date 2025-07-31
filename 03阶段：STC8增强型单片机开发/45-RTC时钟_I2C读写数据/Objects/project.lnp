@@ -1,0 +1,14 @@
+".\Objects\main.obj",
+".\Objects\STC8G_H_Delay.obj",
+".\Objects\STC8G_H_GPIO.obj",
+".\Objects\STC8G_H_GPIO_Isr.obj",
+".\Objects\STC8G_H_I2C.obj",
+".\Objects\STC8G_H_I2C_Isr.obj",
+".\Objects\STC8G_H_Timer.obj",
+".\Objects\STC8G_H_Timer_Isr.obj",
+".\Objects\STC8G_H_UART.obj",
+".\Objects\STC8G_H_UART_Isr.obj",
+".\Objects\STC8G_H_NVIC.obj" 
+TO ".\Objects\project" 
+PRINT(".\Listings\project.m51") RAMSIZE(256) 
+DISABLEWARNING (16) 
