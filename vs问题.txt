@@ -1,0 +1,8 @@
+1.打开命令面板‌：按Ctrl+Shift+P（Windows/Linux）或Command+Shift+P（Mac）
+
+2.在windows下的执行步骤(visual studio)：
+  (1).在windows搜索栏输入： Developer Command Prompt for VS 2002
+      这个命令会自动设置号编译器环境变量
+  (2).编译单个的C文件，执行命令:cl 文件名.c
+     这个命令会自动生成  文件名.obj 和 文件名.exe 文件
+  (3).执行：.\文件名.exe
